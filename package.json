@@ -1,0 +1,24 @@
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^3.1.0"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.24.0",
+    "@seregpie/three.text-sprite": "^3.2.0",
+    "@seregpie/three.text-texture": "^3.2.1",
+    "dat.gui": "^0.7.9",
+    "gsap": "^3.11.3",
+    "three": "^0.176.0",
+    "three-nebula": "^10.0.3",
+    "threejs-post-processing": "^1.0.2"
+  }
+}

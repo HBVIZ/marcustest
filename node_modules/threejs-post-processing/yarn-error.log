@@ -1,0 +1,47 @@
+Arguments: 
+  /Users/yliu/.nvm/versions/node/v9.11.1/bin/node /Users/yliu/.nvm/versions/node/v9.11.1/bin/yarn install
+
+PATH: 
+  /Users/yliu/.rvm/gems/ruby-2.3.1/bin:/Users/yliu/.rvm/gems/ruby-2.3.1@global/bin:/Users/yliu/.rvm/rubies/ruby-2.3.1/bin:/Users/yliu/Downloads/google-cloud-sdk/bin:/Users/yliu/.local/bin:/usr/local/opt/icu4c/sbin:/usr/local/opt/icu4c/bin:/Users/yliu/.nvm/versions/node/v9.11.1/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/usr/local/mysql/bin:/Users/yliu/.rvm/bin
+
+Yarn version: 
+  1.6.0
+
+Node version: 
+  9.11.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  SyntaxError: /Users/yliu/webprojects/threejs-post-processing/package.json: Unexpected token } in JSON at position 345
+      at JSON.parse (<anonymous>)
+      at /Users/yliu/.nvm/versions/node/v9.11.1/lib/node_modules/yarn/lib/cli.js:1130:59
+      at Generator.next (<anonymous>)
+      at step (/Users/yliu/.nvm/versions/node/v9.11.1/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /Users/yliu/.nvm/versions/node/v9.11.1/lib/node_modules/yarn/lib/cli.js:109:13
+      at <anonymous>
+
+npm manifest: 
+  {
+    "name": "threejs-post-processing",
+    "version": "1.0.0",
+    "description": "post-processing module for threejs",
+    "main": "index.js",
+    "scripts": {
+      "test": "yarn test"
+    },
+    "author": "int2a",
+    "license": "ISC",
+    "devDependencies": {
+      "@babel/core": "^7.1.2",
+      "@babel/polyfill": "^7.0.0",
+      "@babel/preset-env": "^7.1.0",
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
