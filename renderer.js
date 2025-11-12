@@ -59,6 +59,9 @@ var object08;
 var object09;
 var object10;
 
+var dustBoxInserted = true;
+var wetRollerInserted = true;
+
 const wetRollerButton = document.querySelector('[data-model-action="wetRollerButton"]');
 const wetRollerSpinTimeline = gsap.timeline({
     paused: true,  // Start paused
@@ -97,28 +100,25 @@ const wheel02SpinTimeline = gsap.timeline({
     ease: "power1.inOut", // Smooth easing for acceleration/deceleration
 });
 
-const toggleStates = new Map();
-
 const actionHandlers = {
-    sideCleanerButton: (source) => handleSideEdgeCleanersToggle(source),
-    wheelsButton: (source) => handleWheelToggle(source),
-    wetRollerButton: (source) => handleWetRollerToggle(source),
-    brushBarButton: (source) => handleBrushBarToggle(source),
-    dustBox: (source) => toggleDustBox(source),
-    wetRollerTray: (source) => toggleWetRollerTray(source)
+    sideCleanerButton: () => handleSideEdgeCleanersToggle(),
+    wheelsButton: () => handleWheelToggle(),
+    wetRollerButton: () => handleWetRollerToggle(),
+    brushBarButton: () => handleBrushBarToggle(),
+    dustBox: () => toggleDustBox(),
+    wetRollerTray: () => toggleWetRollerTray()
 };
-
-function getActionState(actionName) {
-    if (!toggleStates.has(actionName)) {
-        toggleStates.set(actionName, { active: false });
-    }
-    return toggleStates.get(actionName);
-}
 
 function triggerModelAction(actionName, payload) {
     if (!actionName) {
         console.warn('No action name provided for triggerModelAction.');
         return false;
+    }
+
+    const button = document.querySelector(`[data-model-action="${actionName}"]`);
+    if (button) {
+        button.dispatchEvent(new Event('click', { bubbles: true }));
+        return true;
     }
 
     const handler = actionHandlers[actionName];
@@ -128,7 +128,7 @@ function triggerModelAction(actionName, payload) {
         return false;
     }
 
-    handler(payload ?? { source: 'external' });
+    handler(payload);
     return true;
 }
 
@@ -418,66 +418,38 @@ btn5?.addEventListener("click", toggleWetRollerTray);
 
 sideCleanerButton.addEventListener('click', (event) => { handleSideEdgeCleanersToggle(event); });
 function handleSideEdgeCleanersToggle(triggerSource) {
-    const isEvent = triggerSource instanceof Event;
-    const actionName = isEvent
-        ? triggerSource.currentTarget?.dataset?.modelAction ?? 'sideCleanerButton'
-        : 'sideCleanerButton';
-    if (isEvent || triggerSource?.source === 'external') {
-        animateGlow(object01, 0xff0000);
-        animateGlow(object02);
-    }
-    const state = getActionState(actionName);
+    const actionName = triggerSource?.currentTarget?.dataset?.modelAction ?? 'sideCleanerButton';
+    animateGlow(object01, 0xff0000);
+    animateGlow(object02);
     toggleSpin(object01, sideCleaner01SpinTimeline, updateButtonClass, actionName, "y");
     toggleSpin(object02, sideCleaner02SpinTimeline, updateButtonClass, actionName, "y", -1);
-    state.active = !state.active;
     checkCameraPostition();
 }
 
 
 brushBarButton.addEventListener('click', (event) => { handleBrushBarToggle(event); });
 function handleBrushBarToggle(triggerSource) {
-    const isEvent = triggerSource instanceof Event;
-    const actionName = isEvent
-        ? triggerSource.currentTarget?.dataset?.modelAction ?? 'brushBarButton'
-        : 'brushBarButton';
-    if (isEvent || triggerSource?.source === 'external') {
-        animateGlow(object08);
-    }
-    const state = getActionState(actionName);
+    const actionName = triggerSource?.currentTarget?.dataset?.modelAction ?? 'brushBarButton';
+    animateGlow(object08);
     toggleSpin(object08, brushBarSpinTimeline, updateButtonClass, actionName, "x");
-    state.active = !state.active;
     checkCameraPostition();
 }
 
 wetRollerButton.addEventListener('click', (event) => { handleWetRollerToggle(event); });
 function handleWetRollerToggle(triggerSource) {
-    const isEvent = triggerSource instanceof Event;
-    const actionName = isEvent
-        ? triggerSource.currentTarget?.dataset?.modelAction ?? 'wetRollerButton'
-        : 'wetRollerButton';
-    if (isEvent || triggerSource?.source === 'external') {
-        animateGlow(object03);
-    }
-    const state = getActionState(actionName);
+    const actionName = triggerSource?.currentTarget?.dataset?.modelAction ?? 'wetRollerButton';
+    animateGlow(object03);
     toggleSpin(object03, wetRollerSpinTimeline, updateButtonClass, actionName, "x", -1, 0.75, 0.75, 1.5);
-    state.active = !state.active;
     checkCameraPostition();
 }
 
 wheelsButton.addEventListener('click', (event) => { handleWheelToggle(event); });
 function handleWheelToggle(triggerSource) {
-    const isEvent = triggerSource instanceof Event;
-    const actionName = isEvent
-        ? triggerSource.currentTarget?.dataset?.modelAction ?? 'wheelsButton'
-        : 'wheelsButton';
-    if (isEvent || triggerSource?.source === 'external') {
-        animateGlow(object05);
-        animateGlow(object06);
-    }
-    const state = getActionState(actionName);
+    const actionName = triggerSource?.currentTarget?.dataset?.modelAction ?? 'wheelsButton';
+    animateGlow(object05);
+    animateGlow(object06);
     toggleSpin(object05, wheel01SpinTimeline, updateButtonClass, actionName, "x", 1, 1, 1, 3);
     toggleSpin(object06, wheel02SpinTimeline, updateButtonClass, actionName, "x", 1, 1, 1, 3);
-    state.active = !state.active;
     checkCameraPostition();
 }
 
@@ -490,26 +462,23 @@ function toggleDustBox(triggerSource) {
     cameraTargetTimeline.clear();
     animateGlow(object04);
 
-    const isEvent = triggerSource instanceof Event;
-    const actionName = isEvent
-        ? triggerSource.currentTarget?.dataset?.modelAction ?? 'dustBox'
-        : 'dustBox';
-    const state = getActionState(actionName);
+    const actionName = triggerSource?.currentTarget?.dataset?.modelAction ?? 'dustBox';
 
-    if (!state.active) {
+    if (dustBoxInserted) {
 
         gsap.to(object04.position, { duration: 1.4, z: -300, ease: "power1.inOut", delay: 0.5 });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.5, x: -3, y: 3.0, z: 1.0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         cameraTargetTimeline.to(cameraControls.target, { overwrite: "true", duration: 1.5, x: 0, y: 0.2, z: 0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         updateButtonClass('spinning', actionName);
+        dustBoxInserted = false;
     } else {
 
         gsap.to(object04.position, { duration: 1.75, z: 0, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.75, x: -6, y: 3.0, z: 1.0, ease: "power1.inOut", delay: 0.0, onUpdate: function () { cameraControls.update(); } });
         resetCameraTarget();
         updateButtonClass('idle', actionName);
+        dustBoxInserted = true;
     }
-    state.active = !state.active;
 }
 
 
@@ -518,24 +487,21 @@ function toggleWetRollerTray(triggerSource) {
     cameraPositionTimeline.clear();
     cameraTargetTimeline.clear();
 
-    const isEvent = triggerSource instanceof Event;
-    const actionName = isEvent
-        ? triggerSource.currentTarget?.dataset?.modelAction ?? 'wetRollerTray'
-        : 'wetRollerTray';
-    const state = getActionState(actionName);
+    const actionName = triggerSource?.currentTarget?.dataset?.modelAction ?? 'wetRollerTray';
 
-    if (!state.active) {
+    if (wetRollerInserted) {
         gsap.to(object07.position, { duration: 1.4, x: 400, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.5, x: -0.4, y: 4.0, z: 1.4, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         cameraTargetTimeline.to(cameraControls.target, { overwrite: "true", duration: 1.5, x: -0.4, y: -0.25, z: -0.1, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         updateButtonClass('spinning', actionName);
+        wetRollerInserted = false;
     } else {
         gsap.to(object07.position, { duration: 1.2, x: 0, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.2, x: -6, y: 3.0, z: 1.0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         resetCameraTarget();
         updateButtonClass('idle', actionName);
+        wetRollerInserted = true;
     }
-    state.active = !state.active;
 }
 
 function resetCameraTarget(myDuration = 1.5) {
