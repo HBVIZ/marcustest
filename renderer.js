@@ -102,6 +102,59 @@ const wheel02SpinTimeline = gsap.timeline({
     ease: "power1.inOut", // Smooth easing for acceleration/deceleration
 });
 
+const actionHandlers = {
+    sideCleanerButton: () => handleSideEdgeCleanersToggle('external'),
+    wheelsButton: () => handleWheelToggle('external'),
+    wetRollerButton: () => handleWetRollerToggle('external'),
+    brushBarButton: () => handleBrushBarToggle('external'),
+    btn2: () => toggleDustBox(),
+    btn5: () => toggleWetRollerTray()
+};
+
+function triggerModelAction(actionName, payload) {
+    if (!actionName) {
+        console.warn('No action name provided for triggerModelAction.');
+        return false;
+    }
+
+    const handler = actionHandlers[actionName];
+
+    if (typeof handler !== 'function') {
+        console.warn(`No handler found for action "${actionName}".`);
+        return false;
+    }
+
+    handler(payload);
+    return true;
+}
+
+window.Dyson3DControls = {
+    triggerAction: triggerModelAction,
+    availableActions: () => Object.keys(actionHandlers)
+};
+
+window.addEventListener('message', (event) => {
+    const { data } = event;
+
+    let actionName;
+    let payload;
+
+    if (typeof data === 'string') {
+        actionName = data;
+    } else if (data && typeof data === 'object') {
+        if (data.type && data.type !== 'MODEL_ACTION') {
+            return;
+        }
+
+        actionName = data.action ?? data.modelAction ?? data.id;
+        payload = data.payload;
+    }
+
+    if (typeof actionName === 'string') {
+        triggerModelAction(actionName, payload);
+    }
+});
+
 
 
 scene.background = new THREE.Color(0x111111);
@@ -416,20 +469,22 @@ function toggleDustBox(event) {
     cameraPositionTimeline.clear();
     cameraTargetTimeline.clear();
 animateGlow(object04);
+
+    const buttonId = event?.currentTarget?.id ?? 'btn2';
     if (dustBoxInserted == true) {
 
         gsap.to(object04.position, { duration: 1.4, z: -300, ease: "power1.inOut", delay: 0.5 });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.5, x: -3, y: 3.0, z: 1.0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         cameraTargetTimeline.to(cameraControls.target, { overwrite: "true", duration: 1.5, x: 0, y: 0.2, z: 0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         dustBoxInserted = false;
-        updateButtonClass('spinning', event.currentTarget.id);
+        updateButtonClass('spinning', buttonId);
     } else {
 
         gsap.to(object04.position, { duration: 1.75, z: 0, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.75, x: -6, y: 3.0, z: 1.0, ease: "power1.inOut", delay: 0.0, onUpdate: function () { cameraControls.update(); } });
         resetCameraTarget();
         dustBoxInserted = true;
-        updateButtonClass('idle', event.currentTarget.id);
+        updateButtonClass('idle', buttonId);
     }
 
 }
@@ -440,18 +495,19 @@ animateGlow(object07);
     cameraPositionTimeline.clear();
     cameraTargetTimeline.clear();
 
+    const buttonId = event?.currentTarget?.id ?? 'btn5';
     if (wetRollerInserted == true) {
         gsap.to(object07.position, { duration: 1.4, x: 400, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.5, x: -0.4, y: 4.0, z: 1.4, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         cameraTargetTimeline.to(cameraControls.target, { overwrite: "true", duration: 1.5, x: -0.4, y: -0.25, z: -0.1, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         wetRollerInserted = false;
-        updateButtonClass('spinning', event.currentTarget.id);
+        updateButtonClass('spinning', buttonId);
     } else {
         gsap.to(object07.position, { duration: 1.2, x: 0, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.2, x: -6, y: 3.0, z: 1.0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         resetCameraTarget();
         wetRollerInserted = true;
-        updateButtonClass('idle', event.currentTarget.id);
+        updateButtonClass('idle', buttonId);
     }
 
 
