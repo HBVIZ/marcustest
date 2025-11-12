@@ -422,7 +422,7 @@ btn5?.addEventListener("click", toggleWetRollerTray);
 
 sideCleanerButton.addEventListener('click', (event) => { handleSideEdgeCleanersToggle(event); });
 function handleSideEdgeCleanersToggle(triggerSource) {
-    if (triggerSource instanceof Event) {
+    if (triggerSource instanceof Event || triggerSource === 'external') {
         animateGlow(object01, 0xff0000);
         animateGlow(object02);
     }
@@ -434,17 +434,17 @@ function handleSideEdgeCleanersToggle(triggerSource) {
 
 brushBarButton.addEventListener('click', (event) => { handleBrushBarToggle(event); });
 function handleBrushBarToggle(triggerSource) {
-     if (triggerSource instanceof Event) {
-    animateGlow(object08);
-     }
+    if (triggerSource instanceof Event || triggerSource === 'external') {
+        animateGlow(object08);
+    }
     toggleSpin(object08, brushBarSpinTimeline, updateButtonClass, "brushBarButton", "x");
     checkCameraPostition();
 }
 
 wetRollerButton.addEventListener('click', (event) => { handleWetRollerToggle(event); });
 function handleWetRollerToggle(triggerSource) {
-    if (triggerSource instanceof Event) {
-    animateGlow(object03);
+    if (triggerSource instanceof Event || triggerSource === 'external') {
+        animateGlow(object03);
     }
     toggleSpin(object03, wetRollerSpinTimeline, updateButtonClass, "wetRollerButton", "x", -1, 0.75, 0.75, 1.5);
     checkCameraPostition();
@@ -452,9 +452,9 @@ function handleWetRollerToggle(triggerSource) {
 
 wheelsButton.addEventListener('click', (event) => { handleWheelToggle(event); });
 function handleWheelToggle(triggerSource) {
-    if (triggerSource instanceof Event) {
-    animateGlow(object05);
-    animateGlow(object06);
+    if (triggerSource instanceof Event || triggerSource === 'external') {
+        animateGlow(object05);
+        animateGlow(object06);
     }
     toggleSpin(object05, wheel01SpinTimeline, updateButtonClass, "wheelsButton", "x", 1, 1, 1, 3);
     toggleSpin(object06, wheel02SpinTimeline, updateButtonClass, "wheelsButton", "x", 1, 1, 1, 3);
