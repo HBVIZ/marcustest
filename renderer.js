@@ -312,24 +312,16 @@ function playOpeningAnimation() {
     gsap.to(lights.rim, { intensity: 1, duration: 1, delay: 0.4 });
     gsap.to(lights.ambient, { intensity: 0.2, duration: 1, delay: 0.6 });
 
-    const tl = gsap.timeline();
-    cameraPositionTimeline.to(camera.position, { id: 'openingAnimation', duration: 3, x: 0, y: -1.5, z: 1.75, ease: "power2.inOut", onUpdate: function () { cameraControls.update(); } });
-
-    tl.call(() => {
-        handleSideEdgeCleanersToggle();
-    }, null, 2.25);
-
-    tl.call(() => {
-        handleWetRollerToggle();
-    }, null, 1.75);
-
-    tl.call(() => {
-        handleWheelToggle();
-    }, null, 2.0);
-
-    tl.call(() => {
-        handleBrushBarToggle();
-    }, null, 2.25);
+    cameraPositionTimeline.clear();
+    cameraPositionTimeline.to(camera.position, {
+        id: 'openingAnimation',
+        duration: 3,
+        x: 0,
+        y: -1.5,
+        z: 1.75,
+        ease: "power2.inOut",
+        onUpdate: function () { cameraControls.update(); }
+    });
 
 }
 
