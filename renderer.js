@@ -64,21 +64,21 @@ var wetRollerInserted = true;
 
 
 
-const wetRollerButton = document.getElementById('wetRollerButton');
+const wetRollerButton = document.querySelector('[data-model-action="wetRollerButton"]');
 const wetRollerSpinTimeline = gsap.timeline({
     paused: true,  // Start paused
     repeat: -1,    // Repeat indefinitely
     ease: "power1.inOut", // Smooth easing for acceleration/deceleration
 });
 
-const brushBarButton = document.getElementById('brushBarButton');
+const brushBarButton = document.querySelector('[data-model-action="brushBarButton"]');
 const brushBarSpinTimeline = gsap.timeline({
     paused: true,  // Start paused
     repeat: -1,    // Repeat indefinitely
     ease: "power1.inOut", // Smooth easing for acceleration/deceleration
 });
 
-const sideCleanerButton = document.getElementById('sideCleanerButton');
+const sideCleanerButton = document.querySelector('[data-model-action="sideCleanerButton"]');
 const sideCleaner01SpinTimeline = gsap.timeline({
     paused: true,  // Start paused
     repeat: -1,    // Repeat indefinitely
@@ -90,7 +90,7 @@ const sideCleaner02SpinTimeline = gsap.timeline({
     ease: "power1.inOut", // Smooth easing for acceleration/deceleration
 });
 
-const wheelsButton = document.getElementById('wheelsButton');
+const wheelsButton = document.querySelector('[data-model-action="wheelsButton"]');
 const wheel01SpinTimeline = gsap.timeline({
     paused: true,  // Start paused
     repeat: -1,    // Repeat indefinitely
@@ -107,8 +107,8 @@ const actionHandlers = {
     wheelsButton: () => handleWheelToggle('external'),
     wetRollerButton: () => handleWetRollerToggle('external'),
     brushBarButton: () => handleBrushBarToggle('external'),
-    btn2: () => toggleDustBox(),
-    btn5: () => toggleWetRollerTray()
+    btn2: () => toggleDustBox('btn2'),
+    btn5: () => toggleWetRollerTray('btn5')
 };
 
 function triggerModelAction(actionName, payload) {
@@ -412,12 +412,12 @@ function isCameraTweening(camera) {
 }
 
 
-var btn2 = document.getElementById('btn2');
-btn2.addEventListener("click", toggleDustBox);
+var btn2 = document.querySelector('[data-model-action="btn2"]');
+btn2?.addEventListener("click", toggleDustBox);
 
 
-var btn5 = document.getElementById('btn5');
-btn5.addEventListener("click", toggleWetRollerTray);
+var btn5 = document.querySelector('[data-model-action="btn5"]');
+btn5?.addEventListener("click", toggleWetRollerTray);
 
 
 sideCleanerButton.addEventListener('click', (event) => { handleSideEdgeCleanersToggle(event); });
@@ -470,21 +470,23 @@ function toggleDustBox(event) {
     cameraTargetTimeline.clear();
 animateGlow(object04);
 
-    const buttonId = event?.currentTarget?.id ?? 'btn2';
+    const actionName = typeof event === 'string'
+        ? event
+        : event?.currentTarget?.dataset?.modelAction ?? 'btn2';
     if (dustBoxInserted == true) {
 
         gsap.to(object04.position, { duration: 1.4, z: -300, ease: "power1.inOut", delay: 0.5 });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.5, x: -3, y: 3.0, z: 1.0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         cameraTargetTimeline.to(cameraControls.target, { overwrite: "true", duration: 1.5, x: 0, y: 0.2, z: 0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         dustBoxInserted = false;
-        updateButtonClass('spinning', buttonId);
+        updateButtonClass('spinning', actionName);
     } else {
 
         gsap.to(object04.position, { duration: 1.75, z: 0, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.75, x: -6, y: 3.0, z: 1.0, ease: "power1.inOut", delay: 0.0, onUpdate: function () { cameraControls.update(); } });
         resetCameraTarget();
         dustBoxInserted = true;
-        updateButtonClass('idle', buttonId);
+        updateButtonClass('idle', actionName);
     }
 
 }
@@ -495,19 +497,21 @@ animateGlow(object07);
     cameraPositionTimeline.clear();
     cameraTargetTimeline.clear();
 
-    const buttonId = event?.currentTarget?.id ?? 'btn5';
+    const actionName = typeof event === 'string'
+        ? event
+        : event?.currentTarget?.dataset?.modelAction ?? 'btn5';
     if (wetRollerInserted == true) {
         gsap.to(object07.position, { duration: 1.4, x: 400, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.5, x: -0.4, y: 4.0, z: 1.4, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         cameraTargetTimeline.to(cameraControls.target, { overwrite: "true", duration: 1.5, x: -0.4, y: -0.25, z: -0.1, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         wetRollerInserted = false;
-        updateButtonClass('spinning', buttonId);
+        updateButtonClass('spinning', actionName);
     } else {
         gsap.to(object07.position, { duration: 1.2, x: 0, ease: "power1.inOut" });
         cameraPositionTimeline.to(camera.position, { overwrite: "true", duration: 1.2, x: -6, y: 3.0, z: 1.0, ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         resetCameraTarget();
         wetRollerInserted = true;
-        updateButtonClass('idle', buttonId);
+        updateButtonClass('idle', actionName);
     }
 
 
@@ -521,9 +525,15 @@ function resetCameraTarget(myDuration = 1.5) {
 
 
 
-function updateButtonClass(state, button) {
-    const btn = document.getElementById(button);
+function updateButtonClass(state, actionName) {
+    const btn = document.querySelector(`[data-model-action="${actionName}"]`);
+    if (!btn) {
+        return;
+    }
     const circle = btn.querySelector('.circle');
+    if (!circle) {
+        return;
+    }
     circle.classList.remove("idle", "spinning", "decelerating");
     circle.classList.add(state);
 }
