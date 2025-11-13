@@ -22,7 +22,7 @@ const MODEL_PATH = './glb/robot/test-spoot.glb';
 // const MODEL_PATH = './glb/robot/804_A_test_001.glb';  // Original model
 
 // Model scale (1.0 = original size, 0.5 = half size, 2.0 = double size, etc.)
-const MODEL_SCALE = 0.03;
+const MODEL_SCALE = 0.06;
 
 // Ambient lighting configuration
 // Ambient intensity: Controls overall scene brightness (0.0 = dark, 1.0 = bright, 2.0 = very bright)
