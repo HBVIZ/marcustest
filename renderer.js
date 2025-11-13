@@ -38,6 +38,13 @@ const HEMISPHERE_INTENSITY = 0.6;            // Hemisphere light intensity
 
 // Additional directional lights for full coverage (top, bottom, sides, back)
 const ATMOSPHERIC_LIGHT_INTENSITY = 0.8;     // Intensity for directional lights around model
+
+// Camera distance configuration
+// Controls how close/far the camera is from the model
+// Smaller values = closer, larger values = farther away
+const CAMERA_DISTANCE = 0.4;                  // Main camera distance (default: 0.8, try 0.5 for closer, 1.2 for farther)
+const CAMERA_MIN_DISTANCE = 0.3;              // Minimum zoom distance (OrbitControls)
+const CAMERA_MAX_DISTANCE = 1.5;              // Maximum zoom distance (OrbitControls)
 // ============================================================================
 
 const scene = new THREE.Scene();
@@ -214,13 +221,17 @@ window.addEventListener('resize', () => {
 
 var cameraControls = new OrbitControls(camera, renderer.domElement);
 
-cameraControls.minDistance = 0.5;
-cameraControls.maxDistance = 1.0;
+cameraControls.minDistance = CAMERA_MIN_DISTANCE;
+cameraControls.maxDistance = CAMERA_MAX_DISTANCE;
 
+// Calculate default camera position based on CAMERA_DISTANCE
+// Default viewing angle: slightly below and in front of model
+const defaultCameraY = -CAMERA_DISTANCE * 1.875;  // -1.5 scaled
+const defaultCameraZ = CAMERA_DISTANCE * 2.1875;   // 1.75 scaled
 
-camera.position.z = 1.5;
+camera.position.z = CAMERA_DISTANCE * 1.875;  // Initial position (scaled from 1.5)
 camera.position.x = 0.0;
-camera.position.y = 5;
+camera.position.y = CAMERA_DISTANCE * 6.25;   // Initial position (scaled from 5)
 
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.22;
@@ -388,8 +399,8 @@ function playOpeningAnimation() {
         id: 'openingAnimation',
         duration: 3,
         x: 0,
-        y: -1.5,
-        z: 1.75,
+        y: defaultCameraY,
+        z: defaultCameraZ,
         ease: "power2.inOut",
         onUpdate: function () { cameraControls.update(); }
     });
@@ -421,22 +432,22 @@ function checkCameraPostition() {
             if (
                 result.target &&
                 result.target.x === 0 &&
-                result.target.y === -1.5 &&
-                result.target.z === 1.75
+                Math.abs(result.target.y - defaultCameraY) < 0.1 &&
+                Math.abs(result.target.z - defaultCameraZ) < 0.1
             ) {
                 // We are OK to do nothing, camera is moving to required destination
                 console.log("Camera is tweening to starting position");
             } else {
                 // Camera is moving, but not to the starting position.
                 cameraPositionTimeline.clear();
-                cameraPositionTimeline.to(camera.position, { duration: 1.5, x: 0, y: -1.5, z: 1.75, overwrite: "true", ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
+                cameraPositionTimeline.to(camera.position, { duration: 1.5, x: 0, y: defaultCameraY, z: defaultCameraZ, overwrite: "true", ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
             }
 
         } else {
             // Camera is not moving, so we can move it to the starting position.
             console.log("Camera is idle.");
             cameraPositionTimeline.clear();
-            cameraPositionTimeline.to(camera.position, { duration: 1.5, x: 0, y: -1.5, z: 1.75, overwrite: "true", ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
+            cameraPositionTimeline.to(camera.position, { duration: 1.5, x: 0, y: defaultCameraY, z: defaultCameraZ, overwrite: "true", ease: "power1.inOut", onUpdate: function () { cameraControls.update(); } });
         }
 
 
