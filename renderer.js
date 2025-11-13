@@ -12,6 +12,33 @@ import { UnrealBloomPass } from 'https://esm.sh/three@0.157.0/examples/jsm/postp
 import { toggleSpin } from './toggleSpin.js';
 import { applyLighting } from './lighting/cinematicThreePoint.js';
 
+// ============================================================================
+// MODEL CONFIGURATION - Easy to swap models and adjust scale here
+// ============================================================================
+// Current model: test-spoot.glb
+// Original model: 804_A_test_001.glb
+// To swap back, change the path below:
+const MODEL_PATH = './glb/robot/test-spoot.glb';
+// const MODEL_PATH = './glb/robot/804_A_test_001.glb';  // Original model
+
+// Model scale (1.0 = original size, 0.5 = half size, 2.0 = double size, etc.)
+const MODEL_SCALE = 0.03;
+
+// Ambient lighting configuration
+// Ambient intensity: Controls overall scene brightness (0.0 = dark, 1.0 = bright, 2.0 = very bright)
+const AMBIENT_LIGHT_INTENSITY = 0.2;
+// Ambient color: RGB color values (0x444444 = neutral gray, 0xffffff = white, 0xffeedd = warm white)
+const AMBIENT_LIGHT_COLOR = 0x444444;
+
+// Atmospheric lighting configuration (wraps around entire model)
+// Hemisphere light: Natural sky/ground lighting (sky color, ground color, intensity)
+const HEMISPHERE_SKY_COLOR = 0xffffff;      // Sky color (top)
+const HEMISPHERE_GROUND_COLOR = 0x444444;   // Ground color (bottom)
+const HEMISPHERE_INTENSITY = 0.6;            // Hemisphere light intensity
+
+// Additional directional lights for full coverage (top, bottom, sides, back)
+const ATMOSPHERIC_LIGHT_INTENSITY = 0.8;     // Intensity for directional lights around model
+// ============================================================================
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.01, 1000);
@@ -225,21 +252,61 @@ videomesh.translateY(0.146);
 
 const lights = applyLighting(scene, renderer);
 
+// Apply ambient lighting configuration
+lights.ambient.intensity = AMBIENT_LIGHT_INTENSITY;
+lights.ambient.color.setHex(AMBIENT_LIGHT_COLOR);
 
-// Start all lights off (dark)
+// Add hemisphere light for natural sky/ground atmospheric lighting
+const hemisphereLight = new THREE.HemisphereLight(
+    HEMISPHERE_SKY_COLOR,
+    HEMISPHERE_GROUND_COLOR,
+    HEMISPHERE_INTENSITY
+);
+scene.add(hemisphereLight);
+
+// Add directional lights positioned around the model for full coverage
+// Top light
+const topLight = new THREE.DirectionalLight(0xffffff, ATMOSPHERIC_LIGHT_INTENSITY * 10);
+topLight.position.set(0, 10, 0);
+scene.add(topLight);
+
+// Bottom light
+const bottomLight = new THREE.DirectionalLight(0xffffff, ATMOSPHERIC_LIGHT_INTENSITY * 6);
+bottomLight.position.set(0, -10, 0);
+scene.add(bottomLight);
+
+// Left side light
+const leftLight = new THREE.DirectionalLight(0xffffff, ATMOSPHERIC_LIGHT_INTENSITY);
+leftLight.position.set(-10, 0, 0);
+scene.add(leftLight);
+
+// Right side light
+const rightLight = new THREE.DirectionalLight(0xffffff, ATMOSPHERIC_LIGHT_INTENSITY);
+rightLight.position.set(10, 0, 0);
+scene.add(rightLight);
+
+// Front light
+const frontLight = new THREE.DirectionalLight(0xffffff, ATMOSPHERIC_LIGHT_INTENSITY);
+frontLight.position.set(0, 0, 10);
+scene.add(frontLight);
+
+// Back light
+const backLight = new THREE.DirectionalLight(0xffffff, ATMOSPHERIC_LIGHT_INTENSITY * 0.7);
+backLight.position.set(0, 0, -10);
+scene.add(backLight);
+
+// Start original cinematic lights off (or adjust as needed)
 lights.key.intensity = 0;
 lights.fill.intensity = 0;
 lights.rim.intensity = 0;
-lights.ambient.intensity = 0;
 
 
-gltfLoader.load('./glb/robot/804_A_test_001.glb', (gltf) => {
+gltfLoader.load(MODEL_PATH, (gltf) => {
 
 
-    let sc = 1
-    gltf.scene.scale.x = sc;
-    gltf.scene.scale.y = sc;
-    gltf.scene.scale.z = sc;
+    gltf.scene.scale.x = MODEL_SCALE;
+    gltf.scene.scale.y = MODEL_SCALE;
+    gltf.scene.scale.z = MODEL_SCALE;
 
     scene.add(gltf.scene)
 
@@ -314,7 +381,7 @@ function playOpeningAnimation() {
     gsap.to(lights.key, { intensity: 2, duration: 1 });
     gsap.to(lights.fill, { intensity: 0.5, duration: 1, delay: 0.2 });
     gsap.to(lights.rim, { intensity: 1, duration: 1, delay: 0.4 });
-    gsap.to(lights.ambient, { intensity: 0.2, duration: 1, delay: 0.6 });
+    gsap.to(lights.ambient, { intensity: AMBIENT_LIGHT_INTENSITY, duration: 1, delay: 0.6 });
 
     cameraPositionTimeline.clear();
     cameraPositionTimeline.to(camera.position, {
