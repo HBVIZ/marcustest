@@ -42,7 +42,7 @@ const ATMOSPHERIC_LIGHT_INTENSITY = 0.8;     // Intensity for directional lights
 // Camera distance configuration
 // Controls how close/far the camera is from the model
 // Smaller values = closer, larger values = farther away
-const CAMERA_DISTANCE = 0.4;                  // Main camera distance (default: 0.8, try 0.5 for closer, 1.2 for farther)
+const CAMERA_DISTANCE = 0.28;                  // Main camera distance (default: 0.8, try 0.5 for closer, 1.2 for farther)
 const CAMERA_MIN_DISTANCE = 0.3;              // Minimum zoom distance (OrbitControls)
 const CAMERA_MAX_DISTANCE = 1.5;              // Maximum zoom distance (OrbitControls)
 // ============================================================================
